@@ -337,16 +337,10 @@ rabbitmq:
 mvn test
 ```
 
-### Cobertura
-```bash
-mvn test jacoco:report
-open target/site/jacoco/index.html
-```
-
-**Testes implementados:**
-- ✅ `ContaTest.java` (13 testes)
-- ✅ `ContaServiceTest.java`
-- ✅ `FornecedorServiceTest.java`
+**Testes implementados (21 no total):**
+- ✅ `ContaTest.java` (10 testes — invariantes de domínio)
+- ✅ `ContaServiceTest.java` (6 testes — regras de negócio)
+- ✅ `FornecedorServiceTest.java` (5 testes)
 
 ---
 
@@ -393,8 +387,7 @@ src/
 
 ## 📝 Notas
 
-- **Circular Reference Fix:** JwtAuthFilter removido de @Component e criado como @Bean em SecurityConfig
-- **Platform Support:** Dockerfile usa `--platform=linux/amd64` para compatibilidade com Mac M1/M2
+- **Platform Support:** Dockerfile usa `eclipse-temurin:17-jdk` (imagem multi-arch, compatível com Linux/amd64 e Apple Silicon)
 - **Senha Padrão:** admin123 (BCrypt hash armazenado)
 - **JWT Expiration:** 24 horas
 - **Open-in-View:** Habilitado para facilitar lazy loading
