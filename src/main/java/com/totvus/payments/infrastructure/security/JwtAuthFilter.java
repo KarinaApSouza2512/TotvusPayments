@@ -33,15 +33,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
         var token = authHeader.substring(7);
-        var email = jwtService.extrairEmail(token);
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            var userDetails = userDetailsService.loadUserByUsername(email);
-            if (jwtService.tokenValido(token, userDetails)) {
-                var auth = new UsernamePasswordAuthenticationToken(
-                    userDetails, null, userDetails.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(auth);
+        try {
+            var email = jwtService.extrairEmail(token);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                var userDetails = userDetailsService.loadUserByUsername(email);
+                if (jwtService.tokenValido(token, userDetails)) {
+                    var auth = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
+        } catch (io.jsonwebtoken.JwtException e) {
+            // invalid/expired/tampered token — skip auth, Spring Security will return 401
         }
         chain.doFilter(request, response);
     }
