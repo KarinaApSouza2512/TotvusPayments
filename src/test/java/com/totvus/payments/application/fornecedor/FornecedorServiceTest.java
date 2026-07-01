@@ -72,7 +72,8 @@ class FornecedorServiceTest {
         when(repository.existsById(99L)).thenReturn(false);
 
         assertThatThrownBy(() -> service.deletar(99L))
-            .isInstanceOf(RecursoNaoEncontradoException.class);
+            .isInstanceOf(RecursoNaoEncontradoException.class)
+            .hasMessageContaining("99");
         verify(repository, never()).deleteById(any());
     }
 }

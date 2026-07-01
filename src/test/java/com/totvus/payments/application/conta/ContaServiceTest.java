@@ -116,6 +116,7 @@ class ContaServiceTest {
         when(contaRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.buscarPorId(id))
-            .isInstanceOf(RecursoNaoEncontradoException.class);
+            .isInstanceOf(RecursoNaoEncontradoException.class)
+            .hasMessageContaining("Conta");
     }
 }
