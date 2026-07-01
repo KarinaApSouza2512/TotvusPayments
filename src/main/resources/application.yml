@@ -25,8 +25,9 @@ spring:
         retry:
           enabled: true
           max-attempts: 3
-          initial-interval: 1000
+          initial-interval: 2000
           multiplier: 2.0
+        default-requeue-rejected: false
 
 jwt:
   secret: ${JWT_SECRET:3cTr0nh4S3cr3tK3yF0rT0tvusP4ym3nts2024!!MinimumOf256BitsRequired}
