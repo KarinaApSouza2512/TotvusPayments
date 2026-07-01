@@ -3,6 +3,7 @@ package com.totvus.payments.infrastructure.security;
 import com.totvus.payments.infrastructure.persistence.UsuarioJpaRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -25,7 +26,7 @@ public class SecurityConfig {
     private final UsuarioJpaRepository usuarioRepository;
     private final JwtAuthFilter jwtAuthFilter;
 
-    public SecurityConfig(UsuarioJpaRepository usuarioRepository, JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(UsuarioJpaRepository usuarioRepository, @Lazy JwtAuthFilter jwtAuthFilter) {
         this.usuarioRepository = usuarioRepository;
         this.jwtAuthFilter = jwtAuthFilter;
     }
