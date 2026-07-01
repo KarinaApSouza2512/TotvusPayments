@@ -70,7 +70,9 @@ class ContaTest {
             new BigDecimal("300.00"), "Aluguel");
         conta.alterarSituacao(SituacaoConta.PAGO);
         assertThatThrownBy(() -> conta.alterarSituacao(SituacaoConta.CANCELADO))
-            .isInstanceOf(TransicaoEstadoInvalidaException.class);
+            .isInstanceOf(TransicaoEstadoInvalidaException.class)
+            .hasMessageContaining("PAGO")
+            .hasMessageContaining("CANCELADO");
     }
 
     @Test
@@ -80,7 +82,8 @@ class ContaTest {
             new BigDecimal("100.00"), "Frete");
         conta.alterarSituacao(SituacaoConta.CANCELADO);
         assertThatThrownBy(() -> conta.alterarSituacao(SituacaoConta.PAGO))
-            .isInstanceOf(TransicaoEstadoInvalidaException.class);
+            .isInstanceOf(TransicaoEstadoInvalidaException.class)
+            .hasMessageContaining("CANCELADO");
     }
 
     @Test
@@ -115,6 +118,7 @@ class ContaTest {
     void deveLancarExcecaoParaDataVencimentoNula() {
         assertThatThrownBy(() -> Conta.criar(fornecedor, null,
             new BigDecimal("100.00"), "Descrição"))
-            .isInstanceOf(DomainException.class);
+            .isInstanceOf(DomainException.class)
+            .hasMessageContaining("vencimento");
     }
 }
