@@ -2,6 +2,7 @@ package com.totvus.payments.web;
 
 import com.totvus.payments.application.importacao.ImportacaoResponse;
 import com.totvus.payments.application.importacao.ImportacaoService;
+import com.totvus.payments.application.importacao.ImportacaoStatusResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -25,5 +26,11 @@ public class ImportacaoController {
   @Operation(summary = "Importar contas via CSV (processamento assíncrono)")
   public ImportacaoResponse importar(@RequestParam("arquivo") MultipartFile arquivo) {
     return service.importar(arquivo);
+  }
+
+  @GetMapping("/{protocolo}")
+  @Operation(summary = "Consultar status do processamento de uma importação pelo protocolo")
+  public ImportacaoStatusResponse consultarStatus(@PathVariable String protocolo) {
+    return service.consultarStatus(protocolo);
   }
 }

@@ -65,12 +65,16 @@ public class Conta {
   }
 
   public void alterarSituacao(SituacaoConta novaSituacao) {
+    alterarSituacao(novaSituacao, null);
+  }
+
+  public void alterarSituacao(SituacaoConta novaSituacao, LocalDate dataPagamento) {
     if (!this.situacao.podeTransicionarPara(novaSituacao)) {
       throw new TransicaoEstadoInvalidaException(this.situacao, novaSituacao);
     }
     this.situacao = novaSituacao;
-    if (novaSituacao == SituacaoConta.PAGO && this.dataPagamento == null) {
-      this.dataPagamento = LocalDate.now();
+    if (novaSituacao == SituacaoConta.PAGO) {
+      this.dataPagamento = dataPagamento != null ? dataPagamento : LocalDate.now();
     }
   }
 

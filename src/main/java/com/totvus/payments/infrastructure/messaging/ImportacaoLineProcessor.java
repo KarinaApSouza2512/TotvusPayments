@@ -32,6 +32,8 @@ public class ImportacaoLineProcessor {
 
     Long fornecedorId = Long.parseLong(campos[0].trim());
     LocalDate dataVencimento = LocalDate.parse(campos[1].trim());
+    String dataPagamentoCsv = campos[2].trim();
+    LocalDate dataPagamento = dataPagamentoCsv.isEmpty() ? null : LocalDate.parse(dataPagamentoCsv);
     BigDecimal valor = new BigDecimal(campos[3].trim());
     String descricao = campos[4].trim();
     SituacaoConta situacao = SituacaoConta.valueOf(campos[5].trim().toUpperCase());
@@ -45,7 +47,7 @@ public class ImportacaoLineProcessor {
     var conta = Conta.criar(fornecedor, dataVencimento, valor, descricao);
 
     if (situacao != SituacaoConta.PENDENTE) {
-      conta.alterarSituacao(situacao);
+      conta.alterarSituacao(situacao, dataPagamento);
     }
 
     contaRepository.save(conta);

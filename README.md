@@ -196,13 +196,38 @@ curl -X POST http://localhost:8080/api/importacao/contas \
 **Resposta (HTTP 202):**
 ```json
 {
-  "protocolo": "abc123xyz"
+  "protocolo": "abc123xyz",
+  "status": "PROCESSANDO",
+  "mensagem": "Arquivo recebido. Acompanhe o processamento em GET /api/importacao/abc123xyz"
 }
 ```
 
 ![img_9.png](img_9.png)
 
 #### Verificar Processamento
+
+O processamento é assíncrono (RabbitMQ), então o resultado não fica pronto na hora do upload. Consulte pelo protocolo:
+
+```bash
+curl http://localhost:8080/api/importacao/abc123xyz \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Resposta:**
+```json
+{
+  "protocolo": "abc123xyz",
+  "status": "CONCLUIDO_COM_ERROS",
+  "totalLinhas": 4,
+  "totalSucesso": 2,
+  "totalErros": 2,
+  "criadoEm": "2024-12-20T10:00:00",
+  "atualizadoEm": "2024-12-20T10:00:03"
+}
+```
+
+`status` pode ser `PROCESSANDO`, `CONCLUIDO`, `CONCLUIDO_COM_ERROS` (linhas individuais falharam, mas o job terminou) ou `FALHA` (erro crítico — CSV inválido, sem cabeçalho etc.). Para detalhar qual linha falhou e por quê, os logs continuam disponíveis:
+
 ```bash
 docker logs -f payments-app | grep "Importação"
 ```
@@ -270,16 +295,25 @@ CANCELADO → {} (estado final)
 
 **Qualquer transição inválida** → `TransicaoEstadoInvalidaException` (HTTP 422)
 
-**Data de pagamento** é automática ao transicionar para PAGO
+**Data de pagamento**: via API (`PATCH /situacao`), é automática (`LocalDate.now()`) ao transicionar para PAGO. Via importação CSV, se a coluna `dataPagamento` vier preenchida, ela é respeitada (permite importar histórico); se vier vazia, também cai no automático.
 
 ### Resiliência na Importação CSV
 
-**Processamento por linha:**
-- Falhas em linhas específicas: log de warning + continua
-- Falhas críticas: retry automático com backoff exponencial
-- Dead Letter Queue após 3 tentativas
+O processamento roda fora da requisição HTTP (RabbitMQ), então falhas parciais e falhas totais são tratadas de formas diferentes:
 
-**Configuração:**
+**Falha em uma linha específica (ex.: fornecedor inexistente, valor inválido):**
+- `ImportacaoLineProcessor.processarLinha()` roda em transação própria (`@Transactional(propagation = REQUIRES_NEW)`)
+- Isso é o que garante o isolamento: um `rollback` nessa linha **não desfaz** as linhas anteriores já commitadas na mesma mensagem
+- A exceção é capturada por linha, logada como warning e o loop continua — o job termina com status `CONCLUIDO_COM_ERROS`
+
+**Falha crítica (CSV vazio, sem cabeçalho, erro de leitura):**
+- Não há linha para isolar — a mensagem inteira falha e é relançada
+- RabbitMQ aplica retry automático com backoff exponencial (3 tentativas)
+- Esgotadas as tentativas, a mensagem vai para a Dead Letter Queue e o job fica com status `FALHA`
+
+**Acompanhamento:** cada upload gera um `protocolo` persistido (tabela `importacao_jobs`) com status `PROCESSANDO` → `CONCLUIDO` / `CONCLUIDO_COM_ERROS` / `FALHA`, consultável via `GET /api/importacao/{protocolo}` com contagem de sucesso/erros por linha (veja "Verificar Processamento" na seção Exemplos de Uso, acima).
+
+**Configuração do retry/DLQ:**
 ```yaml
 rabbitmq:
   listener:
@@ -337,7 +371,9 @@ rabbitmq:
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
 | POST | `/api/importacao/contas` | Upload CSV (async) |
+| GET | `/api/importacao/{protocolo}` | Consultar status do processamento |
 
+![img_11.png](img_11.png)
 ---
 
 ## 🧪 Testes
@@ -347,10 +383,14 @@ rabbitmq:
 mvn test
 ```
 
-**Testes implementados (21 no total):**
-- ✅ `ContaTest.java` (10 testes — invariantes de domínio)
+**Testes implementados (32 no total):**
+- ✅ `ContaTest.java` (11 testes — invariantes de domínio)
 - ✅ `ContaServiceTest.java` (6 testes — regras de negócio)
 - ✅ `FornecedorServiceTest.java` (5 testes)
+- ✅ `ImportacaoJobTest.java` (4 testes — máquina de estados do job de importação)
+- ✅ `ImportacaoServiceTest.java` (3 testes — criação e consulta de status do job)
+- ✅ `ImportacaoLineProcessorTest.java` (1 teste — dataPagamento do CSV é respeitada)
+- ✅ `ImportacaoConsumerTest.java` (2 testes — atualização do job em sucesso parcial e falha crítica)
 
 ---
 
