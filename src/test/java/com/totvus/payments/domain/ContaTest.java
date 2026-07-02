@@ -57,6 +57,19 @@ class ContaTest {
   }
 
   @Test
+  @DisplayName("Transição para PAGO com data explícita usa a data informada, não a data atual")
+  void devePermitirTransicaoParaPagoComDataExplicita() {
+    var conta =
+        Conta.criar(fornecedor, LocalDate.now().plusDays(10), new BigDecimal("300.00"), "Frete");
+    var dataPagamentoHistorica = LocalDate.of(2024, 12, 20);
+
+    conta.alterarSituacao(SituacaoConta.PAGO, dataPagamentoHistorica);
+
+    assertThat(conta.getSituacao()).isEqualTo(SituacaoConta.PAGO);
+    assertThat(conta.getDataPagamento()).isEqualTo(dataPagamentoHistorica);
+  }
+
+  @Test
   @DisplayName("PAGO não pode voltar para PENDENTE")
   void deveLancarExcecaoAoTentarVoltarDePagoParaPendente() {
     var conta =

@@ -1,6 +1,7 @@
 package com.totvus.payments.infrastructure.messaging;
 
 import com.totvus.payments.application.importacao.ImportacaoMessage;
+import com.totvus.payments.infrastructure.persistence.ImportacaoJobJpaRepository;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,9 +16,12 @@ public class ImportacaoConsumer {
   private static final Logger log = LoggerFactory.getLogger(ImportacaoConsumer.class);
 
   private final ImportacaoLineProcessor lineProcessor;
+  private final ImportacaoJobJpaRepository jobRepository;
 
-  public ImportacaoConsumer(ImportacaoLineProcessor lineProcessor) {
+  public ImportacaoConsumer(
+      ImportacaoLineProcessor lineProcessor, ImportacaoJobJpaRepository jobRepository) {
     this.lineProcessor = lineProcessor;
+    this.jobRepository = jobRepository;
   }
 
   @RabbitListener(queues = RabbitMQConfig.QUEUE_IMPORTACAO)
@@ -55,6 +59,7 @@ public class ImportacaoConsumer {
     } catch (Exception e) {
       log.error(
           "Protocolo {}: falha crítica ao processar CSV — {}", message.protocolo(), e.getMessage());
+      marcarJobComoFalha(message.protocolo());
       throw new RuntimeException("Falha crítica no processamento do CSV", e);
     }
 
@@ -63,5 +68,26 @@ public class ImportacaoConsumer {
         message.protocolo(),
         contador.get(),
         erros.get());
+    concluirJob(message.protocolo(), contador.get(), erros.get());
+  }
+
+  private void concluirJob(String protocolo, int sucesso, int erros) {
+    jobRepository
+        .findById(protocolo)
+        .ifPresent(
+            job -> {
+              job.concluir(sucesso, erros);
+              jobRepository.save(job);
+            });
+  }
+
+  private void marcarJobComoFalha(String protocolo) {
+    jobRepository
+        .findById(protocolo)
+        .ifPresent(
+            job -> {
+              job.falhar();
+              jobRepository.save(job);
+            });
   }
 }
