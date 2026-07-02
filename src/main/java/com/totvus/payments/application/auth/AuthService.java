@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
-    private final AuthenticationManager authManager;
-    private final JwtService jwtService;
+  private final AuthenticationManager authManager;
+  private final JwtService jwtService;
 
-    public AuthService(AuthenticationManager authManager, JwtService jwtService) {
-        this.authManager = authManager;
-        this.jwtService = jwtService;
-    }
+  public AuthService(AuthenticationManager authManager, JwtService jwtService) {
+    this.authManager = authManager;
+    this.jwtService = jwtService;
+  }
 
-    public LoginResponse login(LoginRequest request) {
-        authManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.email(), request.senha()));
-        return new LoginResponse(jwtService.gerarToken(request.email()));
-    }
+  public LoginResponse login(LoginRequest request) {
+    authManager.authenticate(
+        new UsernamePasswordAuthenticationToken(request.email(), request.senha()));
+    return new LoginResponse(jwtService.gerarToken(request.email()));
+  }
 }

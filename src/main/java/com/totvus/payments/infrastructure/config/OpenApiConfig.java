@@ -9,18 +9,16 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-    info = @Info(
-        title = "API de Gestão de Contas a Pagar",
-        version = "1.0.0",
-        description = "API REST para gestão de contas a pagar com importação assíncrona via CSV"
-    ),
-    security = @SecurityRequirement(name = "bearerAuth")
-)
+    info =
+        @Info(
+            title = "API de Gestão de Contas a Pagar",
+            version = "1.0.0",
+            description =
+                "API REST para gestão de contas a pagar com importação assíncrona via CSV"),
+    security = @SecurityRequirement(name = "bearerAuth"))
 @SecurityScheme(
     name = "bearerAuth",
     type = SecuritySchemeType.HTTP,
     scheme = "bearer",
-    bearerFormat = "JWT"
-)
-public class OpenApiConfig {
-}
+    bearerFormat = "JWT")
+public class OpenApiConfig {}

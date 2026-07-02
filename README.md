@@ -101,12 +101,14 @@ curl -X POST http://localhost:8080/api/contas \
     "descricao": "Fornecimento mensal"
   }'
 ```
+![img_4.png](img_4.png)
 
 #### Buscar por ID
 ```bash
 curl http://localhost:8080/api/contas/{id} \
   -H "Authorization: Bearer $TOKEN"
 ```
+![img_5.png](img_5.png)
 
 #### Listar com Filtros (Paginado)
 ```bash
@@ -118,6 +120,7 @@ curl "http://localhost:8080/api/contas?descricao=fornecimento&page=0&size=10" \
 curl "http://localhost:8080/api/contas?dataVencimentoInicio=2024-01-01&dataVencimentoFim=2024-12-31&page=0&size=10" \
   -H "Authorization: Bearer $TOKEN"
 ```
+![img_6.png](img_6.png)
 
 #### Atualizar
 ```bash
@@ -131,6 +134,7 @@ curl -X PUT http://localhost:8080/api/contas/{id} \
     "descricao": "Fornecimento atualizado"
   }'
 ```
+![img_3.png](img_3.png)
 
 #### Alterar Situação (Máquina de Estados)
 ```bash
@@ -147,6 +151,8 @@ curl -X PATCH http://localhost:8080/api/contas/{id}/situacao \
   -d '{"situacao": "CANCELADO"}'
 ```
 
+![img_7.png](img_7.png)
+
 #### Deletar
 ```bash
 curl -X DELETE http://localhost:8080/api/contas/{id} \
@@ -159,6 +165,7 @@ curl -X DELETE http://localhost:8080/api/contas/{id} \
 curl "http://localhost:8080/api/contas/relatorio/total-pago?inicio=2024-01-01&fim=2024-12-31" \
   -H "Authorization: Bearer $TOKEN"
 ```
+![img_8.png](img_8.png)
 
 **Resposta:**
 ```json
@@ -193,10 +200,13 @@ curl -X POST http://localhost:8080/api/importacao/contas \
 }
 ```
 
+![img_9.png](img_9.png)
+
 #### Verificar Processamento
 ```bash
 docker logs -f payments-app | grep "Importação"
 ```
+![img_10.png](img_10.png)
 
 ![Importação CSV](img_2.png)
 

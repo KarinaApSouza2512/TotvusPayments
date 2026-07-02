@@ -14,16 +14,16 @@ import org.springframework.web.multipart.MultipartFile;
 @Tag(name = "Importação")
 public class ImportacaoController {
 
-    private final ImportacaoService service;
+  private final ImportacaoService service;
 
-    public ImportacaoController(ImportacaoService service) {
-        this.service = service;
-    }
+  public ImportacaoController(ImportacaoService service) {
+    this.service = service;
+  }
 
-    @PostMapping(value = "/contas", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    @Operation(summary = "Importar contas via CSV (processamento assíncrono)")
-    public ImportacaoResponse importar(@RequestParam("arquivo") MultipartFile arquivo) {
-        return service.importar(arquivo);
-    }
+  @PostMapping(value = "/contas", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  @Operation(summary = "Importar contas via CSV (processamento assíncrono)")
+  public ImportacaoResponse importar(@RequestParam("arquivo") MultipartFile arquivo) {
+    return service.importar(arquivo);
+  }
 }

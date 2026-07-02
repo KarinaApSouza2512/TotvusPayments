@@ -7,17 +7,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class ImportacaoProducer {
 
-    private final RabbitTemplate rabbitTemplate;
+  private final RabbitTemplate rabbitTemplate;
 
-    public ImportacaoProducer(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-    }
+  public ImportacaoProducer(RabbitTemplate rabbitTemplate) {
+    this.rabbitTemplate = rabbitTemplate;
+  }
 
-    public void publicar(ImportacaoMessage message) {
-        rabbitTemplate.convertAndSend(
-            RabbitMQConfig.EXCHANGE_IMPORTACAO,
-            RabbitMQConfig.QUEUE_IMPORTACAO,
-            message
-        );
-    }
+  public void publicar(ImportacaoMessage message) {
+    rabbitTemplate.convertAndSend(
+        RabbitMQConfig.EXCHANGE_IMPORTACAO, RabbitMQConfig.QUEUE_IMPORTACAO, message);
+  }
 }

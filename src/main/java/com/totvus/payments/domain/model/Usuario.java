@@ -6,23 +6,34 @@ import jakarta.persistence.*;
 @Table(name = "usuarios")
 public class Usuario {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(nullable = false)
-    private String senha;
+  @Column(nullable = false)
+  private String senha;
 
-    @Column(nullable = false, length = 50)
-    private String role;
+  @Column(nullable = false, length = 50)
+  private String role;
 
-    protected Usuario() {}
+  protected Usuario() {}
 
-    public Long getId() { return id; }
-    public String getEmail() { return email; }
-    public String getSenha() { return senha; }
-    public String getRole() { return role; }
+  public Long getId() {
+    return id;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public String getSenha() {
+    return senha;
+  }
+
+  public String getRole() {
+    return role;
+  }
 }
